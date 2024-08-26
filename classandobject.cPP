@@ -10,28 +10,27 @@ public:
     Player(string playerName) : name(playerName), moves(0) {}
 
     string getName() const {
-        return name;
+        return this->name;
     }
 
     void incrementMoves() {
-        moves++;
+        this->moves++;
     }
 
     int getMoves() const {
-        return moves;
+        return this->moves;
     }
 };
 
 class SudokuGrid {
 private:
-    int grid[4][4]; // 4x4 Sudoku grid
+    int grid[4][4]; 
 
 public:
     SudokuGrid(int initialGrid[4][4]) {
-        // Initialize the grid with the given 2D array
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                grid[i][j] = initialGrid[i][j];
+                this->grid[i][j] = initialGrid[i][j];
             }
         }
     }
@@ -39,17 +38,16 @@ public:
     void printGrid() const {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                cout << grid[i][j] << " ";
+                cout << this->grid[i][j] << " ";
             }
             cout << endl;
         }
     }
 
-    // Function to check if the puzzle is solved
     bool isSolved() const {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (grid[i][j] == 0) {
+                if (this->grid[i][j] == 0) {
                     return false;
                 }
             }
@@ -59,7 +57,6 @@ public:
 };
 
 int main() {
-    // Example Sudoku puzzle (0 represents empty cells)
     int puzzle[4][4] = {
         {1, 0, 0, 4},
         {0, 0, 3, 0},
@@ -69,6 +66,7 @@ int main() {
 
     Player player("John Doe");
     SudokuGrid sudoku(puzzle);
+
     sudoku.printGrid();
     player.incrementMoves();
 
