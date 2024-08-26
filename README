@@ -1,0 +1,30 @@
+Sudoku Solver
+Project Description
+The Sudoku Solver is a C++ utility designed to remedy 4x4 Sudoku puzzles the usage of the backtracking set of rules. This challenge demonstrates key Object-Oriented Programming (OOP) principles with the aid of dealing with the Sudoku puzzle and player statistics via instructions and objects. The solver algorithm fills in the missing numbers in a 4x4 grid whilst ensuring all Sudoku policies are followed.
+
+Features
+Sudoku Puzzle Solving: Automatically solves a 4x4 Sudoku puzzle using a backtracking set of rules.
+Grid Display: Prints the Sudoku grid before and after solving.
+Player Tracking: Tracks player statistics including call and quantity of movements.
+Input Handling: Allows change of the puzzle at once inside the code.
+Programming Language
+The mission is implemented in C++.
+
+OOP Concepts Applied
+Classes and Objects
+Player Class: Represents a player with attributes like name and circulate count. Provides strategies to get player statistics and increment move rely.
+Class Definition: Player
+Member Functions: getName(), incrementMoves(), getMoves()
+SudokuGrid Class: Manages the Sudoku grid, such as its initialization, display, and fixing. Contains methods for checking if the puzzle is solved and for solving it the usage of backtracking.
+Class Definition: SudokuGrid
+Member Functions: printGrid(), isSolved(), solvePuzzle()
+This Pointer
+Usage: Although now not explicitly used inside the modern-day implementation, the this pointer in C++ refers to the instance of the magnificence on which a member feature is being invoked. It is implicitly available and may be used to access member variables and techniques within the class.
+Four Building Blocks of OOP
+Encapsulation: Achieved by means of defining non-public attributes (e.G., call and moves in Player, and grid in SudokuGrid) and supplying public strategies to get entry to or adjust these attributes. This ensures that inner facts is hidden from outdoor manipulation and can simplest be accessed through described interfaces.
+
+Abstraction: Provided by the classes Player and SudokuGrid, which disguise the complicated information of the puzzle-fixing logic and participant management from the person. Users engage with those lessons through simple strategies without having to apprehend the underlying implementation.
+
+Inheritance: Not explicitly used in this simple implementation. However, in a more advanced version, inheritance can be applied to increase capability or create specialized versions of the Sudoku grid or player classes.
+
+Polymorphism: Not used in this basic implementation. In a more advanced scenario, polymorphism could be applied to permit specific kinds of Sudoku puzzles or gamers with various behaviors.
