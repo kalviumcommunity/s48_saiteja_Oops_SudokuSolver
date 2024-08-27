@@ -66,7 +66,6 @@ int main() {
 
     Player player("John Doe");
     SudokuGrid sudoku(puzzle);
-
     sudoku.printGrid();
     player.incrementMoves();
 
