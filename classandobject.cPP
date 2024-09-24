@@ -6,6 +6,7 @@ class Player {
 private:
     string* name;
     int moves;
+    static int totalMoves;  
 public:
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
@@ -21,10 +22,15 @@ public:
 
     void incrementMoves() {
         this->moves++;
+        totalMoves++;  
     }
 
     int getMoves() const {
         return this->moves;
+    }
+
+    static int getTotalMoves() {  
+        return totalMoves;
     }
 
     void clearName() {
@@ -33,9 +39,12 @@ public:
     }
 };
 
+int Player::totalMoves = 0;
+
 class SudokuGrid {
 private:
     int** grid;
+    static int puzzlesSolved; 
 public:
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
@@ -71,13 +80,20 @@ public:
                 }
             }
         }
+        puzzlesSolved++;  
         return true;
+    }
+
+    static int getPuzzlesSolved() {  
+        return puzzlesSolved;
     }
 
     void placeNumber(int row, int col, int num) {
         grid[row][col] = num;  
     }
 };
+
+int SudokuGrid::puzzlesSolved = 0;
 
 int main() {
     int puzzle[10][10] = {
@@ -135,6 +151,8 @@ int main() {
     }
 
     cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
+    cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
+    cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
 
     player->clearName(); 
     delete sudoku;  
