@@ -100,7 +100,6 @@ public:
 };
 
 int SudokuGrid::puzzlesSolved = 0;
-
 int main() {
     int puzzle[10][10] = {
         {1, 0, 0, 4, 0, 6, 0, 0, 0, 2},
@@ -120,7 +119,6 @@ int main() {
     getline(cin, playerName);
     Player* player = new Player(playerName);
     SudokuGrid* sudoku = new SudokuGrid(puzzle);
-
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
 
@@ -133,7 +131,6 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
-
         char r, c;
         int row, col, num;
         istringstream iss(input);
@@ -160,9 +157,9 @@ int main() {
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
 
-    player->clearName();
-    delete sudoku;
-    delete player;
+    player->clearName(); 
+    delete sudoku;  
+    delete player; 
 
     return 0;
 }
