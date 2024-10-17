@@ -4,9 +4,9 @@ using namespace std;
 
 class Player {
 private:
-    string* name;
-    int moves;
-    static int totalMoves;
+    string* name;    
+    int moves;     
+    static int totalMoves;  
 
 public:
     Player(const string& playerName) : moves(0) {
@@ -48,8 +48,8 @@ int Player::totalMoves = 0;
 
 class SudokuGrid {
 private:
-    int** grid;
-    static int puzzlesSolved;
+    int** grid;    
+    static int puzzlesSolved; 
 
 public:
     SudokuGrid(int initialGrid[10][10]) {
@@ -100,6 +100,7 @@ public:
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+
 int main() {
     int puzzle[10][10] = {
         {1, 0, 0, 4, 0, 6, 0, 0, 0, 2},
@@ -117,8 +118,11 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
+
+    // Creating player and Sudoku grid objects
     Player* player = new Player(playerName);
     SudokuGrid* sudoku = new SudokuGrid(puzzle);
+
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
 
@@ -131,6 +135,7 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
+
         char r, c;
         int row, col, num;
         istringstream iss(input);
