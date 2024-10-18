@@ -4,13 +4,15 @@ using namespace std;
 
 class Player {
 private:
-    string* name;    
-    int moves;     
-    static int totalMoves;  
-
+    string* name;
+    int moves;
+    static int totalMoves; 
+    static int totalPlayers; 
+  
 public:
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
+        totalPlayers++; 
     }
 
     ~Player() {
@@ -38,6 +40,10 @@ public:
         return totalMoves;
     }
 
+    static int getTotalPlayers() {
+        return totalPlayers;
+    }
+
     void clearName() {
         delete name;
         name = nullptr;
@@ -45,12 +51,14 @@ public:
 };
 
 int Player::totalMoves = 0;
+int Player::totalPlayers = 0;
 
 class SudokuGrid {
 private:
     int** grid;    
     static int puzzlesSolved; 
-
+    static int totalGrids;    
+  
 public:
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
@@ -60,6 +68,7 @@ public:
                 grid[i][j] = initialGrid[i][j];
             }
         }
+        totalGrids++;  
     }
 
     ~SudokuGrid() {
@@ -86,7 +95,11 @@ public:
                 }
             }
         }
-        puzzlesSolved++;
+        puzzlesSolved++; 
+        return true;
+    }
+
+    static int getPuzzlesSolved() { 
         return true;
     }
 
@@ -94,12 +107,17 @@ public:
         return puzzlesSolved;
     }
 
+    static int getTotalGrids() {  
+        return totalGrids;
+    }
+
     void placeNumber(int row, int col, int num) {
-        grid[row][col] = num;
+        grid[row][col] = num; 
     }
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+int SudokuGrid::totalGrids = 0;
 
 int main() {
     int puzzle[10][10] = {
@@ -160,7 +178,10 @@ int main() {
 
     cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
+    cout << "Total Players: " << Player::getTotalPlayers() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
+    cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
+
 
     player->clearName(); 
     delete sudoku;  
