@@ -8,6 +8,7 @@ private:
     int moves;
     static int totalMoves; 
     static int totalPlayers; 
+  
 public:
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
@@ -22,16 +23,20 @@ public:
         return *name;
     }
 
-    void incrementMoves() {
-        this->moves++;
-        totalMoves++;  
+    void setName(const string& playerName) {
+        *name = playerName;
     }
 
     int getMoves() const {
         return this->moves;
     }
 
-    static int getTotalMoves() {  
+    void incrementMoves() {
+        this->moves++;
+        totalMoves++;
+    }
+
+    static int getTotalMoves() {
         return totalMoves;
     }
 
@@ -40,7 +45,7 @@ public:
     }
 
     void clearName() {
-        delete name; 
+        delete name;
         name = nullptr;
     }
 };
@@ -50,10 +55,10 @@ int Player::totalPlayers = 0;
 
 class SudokuGrid {
 private:
-    int** grid;
+    int** grid;    
     static int puzzlesSolved; 
     static int totalGrids;    
-
+  
 public:
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
@@ -95,6 +100,10 @@ public:
     }
 
     static int getPuzzlesSolved() { 
+        return true;
+    }
+
+    static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
 
@@ -127,6 +136,8 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
+
+    // Creating player and Sudoku grid objects
     Player* player = new Player(playerName);
     SudokuGrid* sudoku = new SudokuGrid(puzzle);
 
@@ -142,12 +153,13 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
+
         char r, c;
         int row, col, num;
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num); 
+                sudoku->placeNumber(row, col, num);
                 cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
                 sudoku->printGrid();
                 player->incrementMoves();
@@ -170,9 +182,10 @@ int main() {
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
     cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
+
     player->clearName(); 
     delete sudoku;  
-    delete player;  
+    delete player; 
 
     return 0;
 }
