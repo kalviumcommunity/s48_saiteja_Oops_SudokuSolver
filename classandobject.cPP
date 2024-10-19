@@ -8,13 +8,17 @@ private:
     int moves;
     static int totalMoves; 
     static int totalPlayers; 
-  
+
 public:
+    // Constructor 1: Parameterized constructor
+    // Initializes 'name' dynamically using the passed playerName and sets moves to 0.
+    // Also increments the static variable totalPlayers to track the number of Player objects created.
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
         totalPlayers++; 
     }
 
+    // Destructor: Cleans up dynamically allocated memory (name)
     ~Player() {
         delete name;
     }
@@ -58,8 +62,12 @@ private:
     int** grid;    
     static int puzzlesSolved; 
     static int totalGrids;    
-  
+
 public:
+    // Constructor 2: Parameterized constructor
+    // Takes a 10x10 grid and allocates memory for it dynamically.
+    // Copies the values of the passed grid into the dynamically allocated grid.
+    // Increments the static variable totalGrids to track the number of grids created.
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
         for (int i = 0; i < 10; i++) {
@@ -71,6 +79,7 @@ public:
         totalGrids++;  
     }
 
+    // Destructor: Deallocates the dynamically allocated memory for the grid
     ~SudokuGrid() {
         for (int i = 0; i < 10; i++) {
             delete[] grid[i];
@@ -98,11 +107,6 @@ public:
         puzzlesSolved++; 
         return true;
     }
-
-    static int getPuzzlesSolved() { 
-        return true;
-    }
-
     static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
@@ -137,8 +141,9 @@ int main() {
     cout << "Enter your name: ";
     getline(cin, playerName);
 
-    // Creating player and Sudoku grid objects
     Player* player = new Player(playerName);
+    
+    // Demonstrating the use of the parameterized constructor for SudokuGrid
     SudokuGrid* sudoku = new SudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
@@ -153,7 +158,7 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
-
+        
         char r, c;
         int row, col, num;
         istringstream iss(input);
@@ -181,7 +186,6 @@ int main() {
     cout << "Total Players: " << Player::getTotalPlayers() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
     cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
-
 
     player->clearName(); 
     delete sudoku;  
