@@ -136,6 +136,7 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
+
     Player* player = new Player(playerName);
     
     // Demonstrating the use of the parameterized constructor for SudokuGrid
@@ -180,6 +181,7 @@ int main() {
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
     cout << "Total Players: " << Player::getTotalPlayers() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
+    cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
     player->clearName(); 
     delete sudoku;  
