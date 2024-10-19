@@ -8,6 +8,7 @@ private:
     int moves;
     static int totalMoves; 
     static int totalPlayers; 
+
 public:
     // Constructor 1: Parameterized constructor
     // Initializes 'name' dynamically using the passed playerName and sets moves to 0.
@@ -26,16 +27,20 @@ public:
         return *name;
     }
 
-    void incrementMoves() {
-        this->moves++;
-        totalMoves++;  
+    void setName(const string& playerName) {
+        *name = playerName;
     }
 
     int getMoves() const {
         return this->moves;
     }
 
-    static int getTotalMoves() {  
+    void incrementMoves() {
+        this->moves++;
+        totalMoves++;
+    }
+
+    static int getTotalMoves() {
         return totalMoves;
     }
 
@@ -44,7 +49,7 @@ public:
     }
 
     void clearName() {
-        delete name; 
+        delete name;
         name = nullptr;
     }
 };
@@ -54,7 +59,7 @@ int Player::totalPlayers = 0;
 
 class SudokuGrid {
 private:
-    int** grid;
+    int** grid;    
     static int puzzlesSolved; 
     static int totalGrids;    
 
@@ -102,8 +107,7 @@ public:
         puzzlesSolved++; 
         return true;
     }
-
-    static int getPuzzlesSolved() { 
+    static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
 
@@ -136,8 +140,7 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
-    
-    // Demonstrating the use of the parameterized constructor for Player
+
     Player* player = new Player(playerName);
     
     // Demonstrating the use of the parameterized constructor for SudokuGrid
@@ -161,7 +164,7 @@ int main() {
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num); 
+                sudoku->placeNumber(row, col, num);
                 cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
                 sudoku->printGrid();
                 player->incrementMoves();
@@ -186,7 +189,7 @@ int main() {
 
     player->clearName(); 
     delete sudoku;  
-    delete player;  
+    delete player; 
 
     return 0;
 }
