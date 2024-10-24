@@ -2,6 +2,27 @@
 #include <sstream>
 using namespace std;
 
+// Base Class representing general game functionality
+class Game {
+protected:
+    int totalMoves;  // Track total moves in the game
+public:
+    Game() : totalMoves(0) {}
+
+    void incrementMoves() {
+        totalMoves++;
+    }
+
+    int getTotalMoves() const {
+        return totalMoves;
+    }
+
+    virtual void printGameType() const {
+        cout << "General Game" << endl;
+    }
+};
+
+// Derived Class: Player class remains as is
 class Player {
 private:
     string* name;
@@ -41,7 +62,8 @@ public:
 
 int Player::totalMoves = 0;
 
-class SudokuGrid {
+// Derived Class from Game for the specific Sudoku game
+class SudokuGrid : public Game {
 private:
     int** grid;
     static int puzzlesSolved; 
@@ -64,7 +86,7 @@ public:
     }
 
     void printGrid() const {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 10 - 1; i >= 0; i--) {
             for (int j = 0; j < 10; j++) {
                 cout << grid[i][j] << " ";
             }
@@ -91,9 +113,27 @@ public:
     void placeNumber(int row, int col, int num) {
         grid[row][col] = num;  
     }
+
+    void printGameType() const override {  // Overriding base class function
+        cout << "Sudoku Game" << endl;
+    }
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+
+// Another Derived Class that extends SudokuGrid
+class AdvancedSudokuGrid : public SudokuGrid {
+public:
+    AdvancedSudokuGrid(int initialGrid[10][10]) : SudokuGrid(initialGrid) {}
+
+    void provideHint() const {
+        cout << "Hint: Try focusing on filling rows with fewer empty cells!" << endl;
+    }
+
+    void printGameType() const override {
+        cout << "Advanced Sudoku Game" << endl;
+    }
+};
 
 int main() {
     int puzzle[10][10] = {
@@ -113,7 +153,9 @@ int main() {
     cout << "Enter your name: ";
     getline(cin, playerName);
     Player* player = new Player(playerName);
-    SudokuGrid* sudoku = new SudokuGrid(puzzle);
+
+    // Using AdvancedSudokuGrid instead of regular SudokuGrid
+    AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
@@ -153,6 +195,9 @@ int main() {
     cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
+
+    // Show inheritance feature from AdvancedSudokuGrid
+    sudoku->provideHint();  
 
     player->clearName(); 
     delete sudoku;  
