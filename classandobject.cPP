@@ -27,12 +27,19 @@ class Player {
 private:
     string* name;
     int moves;
-    static int totalMoves;  
+    static int totalMoves; 
+    static int totalPlayers; 
+
 public:
+    // Constructor 1: Parameterized constructor
+    // Initializes 'name' dynamically using the passed playerName and sets moves to 0.
+    // Also increments the static variable totalPlayers to track the number of Player objects created.
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
+        totalPlayers++; 
     }
 
+    // Destructor: Cleans up dynamically allocated memory (name)
     ~Player() {
         delete name;
     }
@@ -41,33 +48,48 @@ public:
         return *name;
     }
 
-    void incrementMoves() {
-        this->moves++;
-        totalMoves++;  
+    void setName(const string& playerName) {
+        *name = playerName;
     }
 
     int getMoves() const {
         return this->moves;
     }
 
-    static int getTotalMoves() {  
+    void incrementMoves() {
+        this->moves++;
+        totalMoves++;
+    }
+
+    static int getTotalMoves() {
         return totalMoves;
     }
 
+    static int getTotalPlayers() {
+        return totalPlayers;
+    }
+
     void clearName() {
-        delete name; 
+        delete name;
         name = nullptr;
     }
 };
 
 int Player::totalMoves = 0;
+int Player::totalPlayers = 0;
 
 // Derived Class from Game for the specific Sudoku game
 class SudokuGrid : public Game {
 private:
-    int** grid;
+    int** grid;    
     static int puzzlesSolved; 
+    static int totalGrids;    
+
 public:
+    // Constructor 2: Parameterized constructor
+    // Takes a 10x10 grid and allocates memory for it dynamically.
+    // Copies the values of the passed grid into the dynamically allocated grid.
+    // Increments the static variable totalGrids to track the number of grids created.
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
         for (int i = 0; i < 10; i++) {
@@ -76,8 +98,10 @@ public:
                 grid[i][j] = initialGrid[i][j];
             }
         }
+        totalGrids++;  
     }
 
+    // Destructor: Deallocates the dynamically allocated memory for the grid
     ~SudokuGrid() {
         for (int i = 0; i < 10; i++) {
             delete[] grid[i];
@@ -102,16 +126,19 @@ public:
                 }
             }
         }
-        puzzlesSolved++;  
+        puzzlesSolved++; 
         return true;
     }
-
-    static int getPuzzlesSolved() {  
+    static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
 
+    static int getTotalGrids() {  
+        return totalGrids;
+    }
+
     void placeNumber(int row, int col, int num) {
-        grid[row][col] = num;  
+        grid[row][col] = num; 
     }
 
     void printGameType() const override {  // Overriding base class function
@@ -120,6 +147,7 @@ public:
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+int SudokuGrid::totalGrids = 0;
 
 // Another Derived Class that extends SudokuGrid
 class AdvancedSudokuGrid : public SudokuGrid {
@@ -152,10 +180,15 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
+
     Player* player = new Player(playerName);
+
 
     // Using AdvancedSudokuGrid instead of regular SudokuGrid
     AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
+    
+    // Demonstrating the use of the parameterized constructor for SudokuGrid
+    SudokuGrid* sudoku = new SudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
@@ -169,13 +202,13 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
-
+        
         char r, c;
         int row, col, num;
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num); 
+                sudoku->placeNumber(row, col, num);
                 cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
                 sudoku->printGrid();
                 player->incrementMoves();
@@ -194,14 +227,16 @@ int main() {
 
     cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
+    cout << "Total Players: " << Player::getTotalPlayers() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
+    cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
     // Show inheritance feature from AdvancedSudokuGrid
     sudoku->provideHint();  
 
     player->clearName(); 
     delete sudoku;  
-    delete player;  
+    delete player; 
 
     return 0;
 }
