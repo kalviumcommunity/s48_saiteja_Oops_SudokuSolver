@@ -6,20 +6,20 @@ using namespace std;
 // Base Class representing general game functionality
 class Game {
 protected:
-    int totalMoves;  // Track total moves in the game
+    int totalMoves;
 
 public:
     Game() : totalMoves(0) {}
 
     virtual ~Game() {}
 
-    virtual void printGameType() const = 0;  // Pure virtual function for polymorphism
+    virtual void printGameType() const = 0; // Pure virtual function for polymorphism
 
-    virtual void printGrid() const = 0;      // Pure virtual function for displaying the grid
+    virtual void printGrid() const = 0; // Pure virtual function for displaying the grid
 
-    virtual bool isSolved() const = 0;       // Pure virtual function for checking if solved
+    virtual bool isSolved() const = 0; // Pure virtual function for checking if solved
 
-    virtual void placeNumber(int row, int col, int num) = 0;  // Pure virtual for placing a number
+    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual for placing a number
 };
 
 // Derived Class representing a specific Player
@@ -27,13 +27,17 @@ class Player {
 private:
     string* name;
     int moves;
-    static int totalMoves;  
+    static int totalMoves;
+    static int totalPlayers;
 
 public:
+    // Constructor 1: Parameterized constructor
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
+        totalPlayers++;
     }
 
+    // Destructor
     ~Player() {
         delete name;
     }
@@ -42,34 +46,45 @@ public:
         return *name;
     }
 
-    void incrementMoves() {
-        this->moves++;
-        totalMoves++;  
+    void setName(const string& playerName) {
+        *name = playerName;
     }
 
     int getMoves() const {
-        return this->moves;
+        return moves;
     }
 
-    static int getTotalMoves() {  
+    void incrementMoves() {
+        moves++;
+        totalMoves++;
+    }
+
+    static int getTotalMoves() {
         return totalMoves;
     }
 
+    static int getTotalPlayers() {
+        return totalPlayers;
+    }
+
     void clearName() {
-        delete name; 
+        delete name;
         name = nullptr;
     }
 };
 
 int Player::totalMoves = 0;
+int Player::totalPlayers = 0;
 
 // Derived Class from Game for the specific Sudoku game
 class SudokuGrid : public Game {
 protected:
     int** grid;
     static int puzzlesSolved;
+    static int totalGrids;
 
 public:
+    // Constructor 2: Parameterized constructor
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
         for (int i = 0; i < 10; i++) {
@@ -78,8 +93,10 @@ public:
                 grid[i][j] = initialGrid[i][j];
             }
         }
+        totalGrids++;
     }
 
+    // Destructor
     ~SudokuGrid() {
         for (int i = 0; i < 10; i++) {
             delete[] grid[i];
@@ -104,24 +121,29 @@ public:
                 }
             }
         }
-        puzzlesSolved++;  
+        puzzlesSolved++;
         return true;
-    }
-
-    void placeNumber(int row, int col, int num) override {
-        grid[row][col] = num;  
-    }
-
-    void printGameType() const override {
-        cout << "Sudoku Game" << endl;
     }
 
     static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
+
+    static int getTotalGrids() {
+        return totalGrids;
+    }
+
+    void placeNumber(int row, int col, int num) override {
+        grid[row][col] = num;
+    }
+
+    void printGameType() const override {
+        cout << "Sudoku Game" << endl;
+    }
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+int SudokuGrid::totalGrids = 0;
 
 // Another Derived Class that extends SudokuGrid
 class AdvancedSudokuGrid : public SudokuGrid {
@@ -154,10 +176,11 @@ int main() {
     string playerName;
     cout << "Enter your name: ";
     getline(cin, playerName);
+
     Player* player = new Player(playerName);
 
-    // Using polymorphism to handle AdvancedSudokuGrid as Game type
-    Game* sudoku = new AdvancedSudokuGrid(puzzle);
+    // Using AdvancedSudokuGrid instead of regular SudokuGrid
+    AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
@@ -196,7 +219,9 @@ int main() {
 
     cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
+    cout << "Total Players: " << Player::getTotalPlayers() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
+    cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
     // Downcasting to access AdvancedSudokuGrid methods
     auto* advancedSudoku = dynamic_cast<AdvancedSudokuGrid*>(sudoku);
