@@ -1,45 +1,43 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 using namespace std;
 
 // Base Class representing general game functionality
 class Game {
 protected:
-    int totalMoves;  // Track total moves in the game
+    int totalMoves;
+
 public:
     Game() : totalMoves(0) {}
 
-    void incrementMoves() {
-        totalMoves++;
-    }
+    virtual ~Game() {}
 
-    int getTotalMoves() const {
-        return totalMoves;
-    }
+    virtual void printGameType() const = 0; // Pure virtual function for polymorphism
 
-    virtual void printGameType() const {
-        cout << "General Game" << endl;
-    }
+    virtual void printGrid() const = 0; // Pure virtual function for displaying the grid
+
+    virtual bool isSolved() const = 0; // Pure virtual function for checking if solved
+
+    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual for placing a number
 };
 
-// Derived Class: Player class remains as is
+// Derived Class representing a specific Player
 class Player {
 private:
     string* name;
     int moves;
-    static int totalMoves; 
-    static int totalPlayers; 
+    static int totalMoves;
+    static int totalPlayers;
 
 public:
     // Constructor 1: Parameterized constructor
-    // Initializes 'name' dynamically using the passed playerName and sets moves to 0.
-    // Also increments the static variable totalPlayers to track the number of Player objects created.
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
-        totalPlayers++; 
+        totalPlayers++;
     }
 
-    // Destructor: Cleans up dynamically allocated memory (name)
+    // Destructor
     ~Player() {
         delete name;
     }
@@ -53,11 +51,11 @@ public:
     }
 
     int getMoves() const {
-        return this->moves;
+        return moves;
     }
 
     void incrementMoves() {
-        this->moves++;
+        moves++;
         totalMoves++;
     }
 
@@ -80,16 +78,13 @@ int Player::totalPlayers = 0;
 
 // Derived Class from Game for the specific Sudoku game
 class SudokuGrid : public Game {
-private:
-    int** grid;    
-    static int puzzlesSolved; 
-    static int totalGrids;    
+protected:
+    int** grid;
+    static int puzzlesSolved;
+    static int totalGrids;
 
 public:
     // Constructor 2: Parameterized constructor
-    // Takes a 10x10 grid and allocates memory for it dynamically.
-    // Copies the values of the passed grid into the dynamically allocated grid.
-    // Increments the static variable totalGrids to track the number of grids created.
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
         for (int i = 0; i < 10; i++) {
@@ -98,10 +93,10 @@ public:
                 grid[i][j] = initialGrid[i][j];
             }
         }
-        totalGrids++;  
+        totalGrids++;
     }
 
-    // Destructor: Deallocates the dynamically allocated memory for the grid
+    // Destructor
     ~SudokuGrid() {
         for (int i = 0; i < 10; i++) {
             delete[] grid[i];
@@ -109,7 +104,7 @@ public:
         delete[] grid;
     }
 
-    void printGrid() const {
+    void printGrid() const override {
         for (int i = 10 - 1; i >= 0; i--) {
             for (int j = 0; j < 10; j++) {
                 cout << grid[i][j] << " ";
@@ -118,7 +113,7 @@ public:
         }
     }
 
-    bool isSolved() const {
+    bool isSolved() const override {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 if (grid[i][j] == 0) {
@@ -126,22 +121,23 @@ public:
                 }
             }
         }
-        puzzlesSolved++; 
+        puzzlesSolved++;
         return true;
     }
+
     static int getPuzzlesSolved() {
         return puzzlesSolved;
     }
 
-    static int getTotalGrids() {  
+    static int getTotalGrids() {
         return totalGrids;
     }
 
-    void placeNumber(int row, int col, int num) {
-        grid[row][col] = num; 
+    void placeNumber(int row, int col, int num) override {
+        grid[row][col] = num;
     }
 
-    void printGameType() const override {  // Overriding base class function
+    void printGameType() const override {
         cout << "Sudoku Game" << endl;
     }
 };
@@ -183,12 +179,8 @@ int main() {
 
     Player* player = new Player(playerName);
 
-
     // Using AdvancedSudokuGrid instead of regular SudokuGrid
     AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
-    
-    // Demonstrating the use of the parameterized constructor for SudokuGrid
-    SudokuGrid* sudoku = new SudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
@@ -202,7 +194,7 @@ int main() {
             cout << "Thank you!" << endl;
             break;
         }
-        
+
         char r, c;
         int row, col, num;
         istringstream iss(input);
@@ -218,10 +210,10 @@ int main() {
                     break;
                 }
             } else {
-                cout << "Invalid input! Please ensure you use the correct format: 'R <row> C <col> <num>' and the values are within range.\n";
+                cout << "Invalid input! Please use 'R <row> C <col> <num>' within range.\n";
             }
         } else {
-            cout << "Invalid input format! Please enter in the format 'R <row> C <col> <num>'.\n";
+            cout << "Invalid format! Use 'R <row> C <col> <num>'.\n";
         }
     }
 
@@ -231,12 +223,15 @@ int main() {
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
     cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
-    // Show inheritance feature from AdvancedSudokuGrid
-    sudoku->provideHint();  
+    // Downcasting to access AdvancedSudokuGrid methods
+    auto* advancedSudoku = dynamic_cast<AdvancedSudokuGrid*>(sudoku);
+    if (advancedSudoku) {
+        advancedSudoku->provideHint();
+    }
 
-    player->clearName(); 
-    delete sudoku;  
-    delete player; 
+    player->clearName();
+    delete sudoku;
+    delete player;
 
     return 0;
 }
