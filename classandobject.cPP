@@ -1,12 +1,34 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 using namespace std;
 
+// Base Class representing general game functionality
+class Game {
+protected:
+    int totalMoves;  // Track total moves in the game
+
+public:
+    Game() : totalMoves(0) {}
+
+    virtual ~Game() {}
+
+    virtual void printGameType() const = 0;  // Pure virtual function for polymorphism
+
+    virtual void printGrid() const = 0;      // Pure virtual function for displaying the grid
+
+    virtual bool isSolved() const = 0;       // Pure virtual function for checking if solved
+
+    virtual void placeNumber(int row, int col, int num) = 0;  // Pure virtual for placing a number
+};
+
+// Derived Class representing a specific Player
 class Player {
 private:
     string* name;
     int moves;
     static int totalMoves;  
+
 public:
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
@@ -41,10 +63,12 @@ public:
 
 int Player::totalMoves = 0;
 
-class SudokuGrid {
-private:
+// Derived Class from Game for the specific Sudoku game
+class SudokuGrid : public Game {
+protected:
     int** grid;
-    static int puzzlesSolved; 
+    static int puzzlesSolved;
+
 public:
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
@@ -63,8 +87,8 @@ public:
         delete[] grid;
     }
 
-    void printGrid() const {
-        for (int i = 0; i < 10; i++) {
+    void printGrid() const override {
+        for (int i = 10 - 1; i >= 0; i--) {
             for (int j = 0; j < 10; j++) {
                 cout << grid[i][j] << " ";
             }
@@ -72,7 +96,7 @@ public:
         }
     }
 
-    bool isSolved() const {
+    bool isSolved() const override {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 if (grid[i][j] == 0) {
@@ -84,16 +108,34 @@ public:
         return true;
     }
 
-    static int getPuzzlesSolved() {  
-        return puzzlesSolved;
+    void placeNumber(int row, int col, int num) override {
+        grid[row][col] = num;  
     }
 
-    void placeNumber(int row, int col, int num) {
-        grid[row][col] = num;  
+    void printGameType() const override {
+        cout << "Sudoku Game" << endl;
+    }
+
+    static int getPuzzlesSolved() {
+        return puzzlesSolved;
     }
 };
 
 int SudokuGrid::puzzlesSolved = 0;
+
+// Another Derived Class that extends SudokuGrid
+class AdvancedSudokuGrid : public SudokuGrid {
+public:
+    AdvancedSudokuGrid(int initialGrid[10][10]) : SudokuGrid(initialGrid) {}
+
+    void provideHint() const {
+        cout << "Hint: Try focusing on filling rows with fewer empty cells!" << endl;
+    }
+
+    void printGameType() const override {
+        cout << "Advanced Sudoku Game" << endl;
+    }
+};
 
 int main() {
     int puzzle[10][10] = {
@@ -113,7 +155,9 @@ int main() {
     cout << "Enter your name: ";
     getline(cin, playerName);
     Player* player = new Player(playerName);
-    SudokuGrid* sudoku = new SudokuGrid(puzzle);
+
+    // Using polymorphism to handle AdvancedSudokuGrid as Game type
+    Game* sudoku = new AdvancedSudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku->printGrid();
@@ -133,7 +177,7 @@ int main() {
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num); 
+                sudoku->placeNumber(row, col, num);
                 cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
                 sudoku->printGrid();
                 player->incrementMoves();
@@ -143,10 +187,10 @@ int main() {
                     break;
                 }
             } else {
-                cout << "Invalid input! Please ensure you use the correct format: 'R <row> C <col> <num>' and the values are within range.\n";
+                cout << "Invalid input! Please use 'R <row> C <col> <num>' within range.\n";
             }
         } else {
-            cout << "Invalid input format! Please enter in the format 'R <row> C <col> <num>'.\n";
+            cout << "Invalid format! Use 'R <row> C <col> <num>'.\n";
         }
     }
 
@@ -154,9 +198,15 @@ int main() {
     cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
 
-    player->clearName(); 
-    delete sudoku;  
-    delete player;  
+    // Downcasting to access AdvancedSudokuGrid methods
+    auto* advancedSudoku = dynamic_cast<AdvancedSudokuGrid*>(sudoku);
+    if (advancedSudoku) {
+        advancedSudoku->provideHint();
+    }
+
+    player->clearName();
+    delete sudoku;
+    delete player;
 
     return 0;
 }
