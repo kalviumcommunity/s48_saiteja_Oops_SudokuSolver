@@ -6,7 +6,7 @@ using namespace std;
 // Base Class representing general game functionality
 class Game {
 protected:
-    int totalMoves;
+    int totalMoves; // Track total moves for the game
 
 public:
     Game() : totalMoves(0) {}
@@ -19,19 +19,19 @@ public:
 
     virtual bool isSolved() const = 0; // Pure virtual function for checking if solved
 
-    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual for placing a number
+    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual function for placing a number
 };
 
-// Derived Class representing a specific Player
+// Class representing a Player
 class Player {
 private:
     string* name;
-    int moves;
-    static int totalMoves;
-    static int totalPlayers;
+    int moves; // Individual player's moves
+    static int totalMoves; // Shared among all players
+    static int totalPlayers; // Count of total players
 
 public:
-    // Constructor 1: Parameterized constructor
+    // Constructor
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
         totalPlayers++;
@@ -76,15 +76,15 @@ public:
 int Player::totalMoves = 0;
 int Player::totalPlayers = 0;
 
-// Derived Class from Game for the specific Sudoku game
+// Class representing a Sudoku grid
 class SudokuGrid : public Game {
 protected:
     int** grid;
-    static int puzzlesSolved;
-    static int totalGrids;
+    static int puzzlesSolved; // Shared across all Sudoku grids
+    static int totalGrids;    // Total grids created
 
 public:
-    // Constructor 2: Parameterized constructor
+    // Constructor
     SudokuGrid(int initialGrid[10][10]) {
         grid = new int*[10];
         for (int i = 0; i < 10; i++) {
@@ -105,7 +105,7 @@ public:
     }
 
     void printGrid() const override {
-        for (int i = 10 - 1; i >= 0; i--) {
+        for (int i = 9; i >= 0; i--) {
             for (int j = 0; j < 10; j++) {
                 cout << grid[i][j] << " ";
             }
@@ -145,13 +145,13 @@ public:
 int SudokuGrid::puzzlesSolved = 0;
 int SudokuGrid::totalGrids = 0;
 
-// Another Derived Class that extends SudokuGrid
+// Advanced Sudoku Grid class
 class AdvancedSudokuGrid : public SudokuGrid {
 public:
     AdvancedSudokuGrid(int initialGrid[10][10]) : SudokuGrid(initialGrid) {}
 
     void provideHint() const {
-        cout << "Hint: Try focusing on filling rows with fewer empty cells!" << endl;
+        cout << "Hint: Focus on rows with fewer empty cells!" << endl;
     }
 
     void printGameType() const override {
@@ -179,7 +179,6 @@ int main() {
 
     Player* player = new Player(playerName);
 
-    // Using AdvancedSudokuGrid instead of regular SudokuGrid
     AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
@@ -223,7 +222,6 @@ int main() {
     cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
     cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
 
-    // Downcasting to access AdvancedSudokuGrid methods
     auto* advancedSudoku = dynamic_cast<AdvancedSudokuGrid*>(sudoku);
     if (advancedSudoku) {
         advancedSudoku->provideHint();
