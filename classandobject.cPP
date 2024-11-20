@@ -3,18 +3,34 @@
 #include <string>
 using namespace std;
 
+// Base Class representing general game functionality
+class Game {
+protected:
+    int totalMoves; // Track total moves for the game
+
+public:
+    Game() : totalMoves(0) {}
+
+    virtual ~Game() {}
+
+    virtual void printGameType() const = 0; // Pure virtual function for polymorphism
+
+    virtual void printGrid() const = 0; // Pure virtual function for displaying the grid
+
+    virtual bool isSolved() const = 0; // Pure virtual function for checking if solved
+
+    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual function for placing a number
+};
+
+// Class representing a Player
 class Player {
 private:
     string* name;
-    int moves;
-
-public:
-    // Constructor with dynamic memory allocation for name
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
+        totalPlayers++;
     }
 
-    // Destructor to deallocate memory
     ~Player() {
         delete name;
     }
@@ -23,33 +39,25 @@ public:
         return *name;
     }
 
-    void incrementMoves() {
-        moves++;
-    }
-
+ 
     int getMoves() const {
         return moves;
     }
 };
 
-class SudokuGrid {
-private:
-    int** grid;
-    int size;
+int Player::totalMoves = 0;
+int Player::totalPlayers = 0;
 
-public:
-    // Constructor to initialize the grid dynamically
-    SudokuGrid(int initialGrid[10][10], int size) : size(size) {
-        grid = new int*[size];
-        for (int i = 0; i < size; i++) {
-            grid[i] = new int[size];
-            for (int j = 0; j < size; j++) {
+// Class representing a Sudoku grid
+class SudokuGrid : public Game {
+protected:
+    int** grid;
                 grid[i][j] = initialGrid[i][j];
             }
         }
+        totalGrids++;
     }
 
-    // Destructor to free the allocated memory
     ~SudokuGrid() {
         for (int i = 0; i < size; i++) {
             delete[] grid[i];
@@ -57,35 +65,20 @@ public:
         delete[] grid;
     }
 
-    // Function to print the grid
-    void printGrid() const {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
                 cout << grid[i][j] << " ";
             }
             cout << endl;
         }
-    }
-
-    // Function to check if the grid is solved
-    bool isSolved() const {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+}
                 if (grid[i][j] == 0) {
                     return false;
                 }
             }
         }
+        puzzlesSolved++;
         return true;
     }
 
-    // Function to place a number in the grid
-    void placeNumber(int row, int col, int num) {
-        if (row >= 0 && row < size && col >= 0 && col < size && num >= 1 && num <= size) {
-            grid[row][col] = num;
-        } else {
-            cout << "Invalid placement.\n";
-        }
     }
 };
 
@@ -103,8 +96,6 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 5}
     };
 
-    Player player("John Doe");
-    SudokuGrid sudoku(puzzle, 10);
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku.printGrid();
@@ -123,22 +114,9 @@ int main() {
         int row, col, num;
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
-            sudoku.placeNumber(row - 1, col - 1, num); // Adjust for 0-based indexing
-            cout << "Grid after move:" << endl;
-            sudoku.printGrid();
-
-            if (sudoku.isSolved()) {
-                cout << "Congratulations! You've solved the Sudoku!\n";
-                break;
             }
 
             player.incrementMoves();
-        } else {
-            cout << "Invalid input format! Please use 'R <row> C <col> <num>'.\n";
-        }
-    }
-
-    cout << "Player: " << player.getName() << " | Moves: " << player.getMoves() << endl;
 
     return 0;
 }
