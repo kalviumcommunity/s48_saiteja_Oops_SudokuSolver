@@ -1,16 +1,20 @@
 #include <iostream>
 #include <sstream>
+#include <string>
 using namespace std;
 
 class Player {
 private:
     string* name;
     int moves;
+
 public:
+    // Constructor with dynamic memory allocation for name
     Player(const string& playerName) : moves(0) {
         name = new string(playerName);
     }
 
+    // Destructor to deallocate memory
     ~Player() {
         delete name;
     }
@@ -20,52 +24,53 @@ public:
     }
 
     void incrementMoves() {
-        this->moves++;
+        moves++;
     }
 
     int getMoves() const {
-        return this->moves;
-    }
-
-    void clearName() {
-        delete name; 
-        name = nullptr;
+        return moves;
     }
 };
 
 class SudokuGrid {
 private:
     int** grid;
+    int size;
+
 public:
-    SudokuGrid(int initialGrid[10][10]) {
-        grid = new int*[10];
-        for (int i = 0; i < 10; i++) {
-            grid[i] = new int[10];
-            for (int j = 0; j < 10; j++) {
+    // Constructor to initialize the grid dynamically
+    SudokuGrid(int initialGrid[10][10], int size) : size(size) {
+        grid = new int*[size];
+        for (int i = 0; i < size; i++) {
+            grid[i] = new int[size];
+            for (int j = 0; j < size; j++) {
                 grid[i][j] = initialGrid[i][j];
             }
         }
     }
 
+    // Destructor to free the allocated memory
     ~SudokuGrid() {
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < size; i++) {
             delete[] grid[i];
         }
         delete[] grid;
     }
 
+    // Function to print the grid
     void printGrid() const {
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 cout << grid[i][j] << " ";
             }
             cout << endl;
         }
     }
 
+    // Function to check if the grid is solved
     bool isSolved() const {
-        for (int i = 0; i < 10; i++) {
-            for (int j = 0; j < 10; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 if (grid[i][j] == 0) {
                     return false;
                 }
@@ -74,8 +79,13 @@ public:
         return true;
     }
 
+    // Function to place a number in the grid
     void placeNumber(int row, int col, int num) {
-        grid[row][col] = num;  
+        if (row >= 0 && row < size && col >= 0 && col < size && num >= 1 && num <= size) {
+            grid[row][col] = num;
+        } else {
+            cout << "Invalid placement.\n";
+        }
     }
 };
 
@@ -93,14 +103,11 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 5}
     };
 
-    string playerName;
-    cout << "Enter your name: ";
-    getline(cin, playerName);
-    Player* player = new Player(playerName);
-    SudokuGrid* sudoku = new SudokuGrid(puzzle);
+    Player player("John Doe");
+    SudokuGrid sudoku(puzzle, 10);
 
     cout << "Sudoku Grid before solving:" << endl;
-    sudoku->printGrid();
+    sudoku.printGrid();
 
     string input;
     while (true) {
@@ -108,7 +115,7 @@ int main() {
         getline(cin, input);
 
         if (input == "exit") {
-            cout << "Thank you!" << endl;
+            cout << "Thank you for playing!" << endl;
             break;
         }
 
@@ -116,29 +123,22 @@ int main() {
         int row, col, num;
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
-            if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num); 
-                cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
-                sudoku->printGrid();
-                player->incrementMoves();
+            sudoku.placeNumber(row - 1, col - 1, num); // Adjust for 0-based indexing
+            cout << "Grid after move:" << endl;
+            sudoku.printGrid();
 
-                if (sudoku->isSolved()) {
-                    cout << "Congratulations! You've solved the Sudoku!\n";
-                    break;
-                }
-            } else {
-                cout << "Invalid input! Please ensure you use the correct format: 'R <row> C <col> <num>' and the values are within range.\n";
+            if (sudoku.isSolved()) {
+                cout << "Congratulations! You've solved the Sudoku!\n";
+                break;
             }
+
+            player.incrementMoves();
         } else {
-            cout << "Invalid input format! Please enter in the format 'R <row> C <col> <num>'.\n";
+            cout << "Invalid input format! Please use 'R <row> C <col> <num>'.\n";
         }
     }
 
-    cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
-
-    player->clearName(); 
-    delete sudoku;  
-    delete player;  
+    cout << "Player: " << player.getName() << " | Moves: " << player.getMoves() << endl;
 
     return 0;
 }
