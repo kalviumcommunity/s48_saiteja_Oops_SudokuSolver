@@ -4,36 +4,14 @@
 #include <vector>
 using namespace std;
 
-// GameStats Class: Manages global game statistics
-class GameStats {
-private:
-    static int totalMoves;
-    static int totalPlayers;
-    static int puzzlesSolved;
-
-public:
-    static void incrementTotalMoves() { totalMoves++; }
-    static void incrementTotalPlayers() { totalPlayers++; }
-    static void incrementPuzzlesSolved() { puzzlesSolved++; }
-
-    static int getTotalMoves() { return totalMoves; }
-    static int getTotalPlayers() { return totalPlayers; }
-    static int getPuzzlesSolved() { return puzzlesSolved; }
-};
-
-// Initialize static variables
-int GameStats::totalMoves = 0;
-int GameStats::totalPlayers = 0;
-int GameStats::puzzlesSolved = 0;
-
-// Abstract MoveValidator Class: Open for adding new rules
+// Base class for validation
 class MoveValidator {
 public:
     virtual bool validate(int row, int col, int num) const = 0;
     virtual ~MoveValidator() = default;
 };
 
-// ClassicSudokuValidator Class: Implements basic validation rules
+// ClassicSudokuValidator: Implements basic validation rules
 class ClassicSudokuValidator : public MoveValidator {
 public:
     bool validate(int row, int col, int num) const override {
@@ -41,14 +19,34 @@ public:
     }
 };
 
-// Abstract GridPrinter Class: Open for custom printing logic
+// AdvancedSudokuValidator: Adds extra rules for row uniqueness
+class AdvancedSudokuValidator : public MoveValidator {
+private:
+    const int (*grid)[10];
+
+public:
+    AdvancedSudokuValidator(const int g[10][10]) : grid(g) {}
+
+    bool validate(int row, int col, int num) const override {
+        if (row < 0 || row >= 10 || col < 0 || col >= 10 || num < 1 || num > 10)
+            return false;
+
+        // Check if num is already in the row
+        for (int j = 0; j < 10; j++) {
+            if (grid[row][j] == num) return false;
+        }
+        return true;
+    }
+};
+
+// Base class for printing
 class GridPrinter {
 public:
     virtual void print(const int grid[10][10]) const = 0;
     virtual ~GridPrinter() = default;
 };
 
-// SimpleGridPrinter Class: Basic printing logic
+// SimpleGridPrinter: Prints grid top to bottom
 class SimpleGridPrinter : public GridPrinter {
 public:
     void print(const int grid[10][10]) const override {
@@ -61,7 +59,25 @@ public:
     }
 };
 
-// SudokuGrid Class: Manages the Sudoku grid and game logic
+// FancyGridPrinter: Adds row and column headers
+class FancyGridPrinter : public GridPrinter {
+public:
+    void print(const int grid[10][10]) const override {
+        cout << "   ";
+        for (int j = 0; j < 10; j++) cout << j << " ";
+        cout << endl;
+
+        for (int i = 9; i >= 0; i--) {
+            cout << i << "  ";
+            for (int j = 0; j < 10; j++) {
+                cout << grid[i][j] << " ";
+            }
+            cout << endl;
+        }
+    }
+};
+
+// SudokuGrid: Manages the Sudoku grid
 class SudokuGrid {
 private:
     int grid[10][10];
@@ -79,6 +95,7 @@ public:
     void placeNumber(int row, int col, int num) {
         if (validator->validate(row, col, num)) {
             grid[row][col] = num;
+            cout << "Move accepted!\n";
         } else {
             cout << "Invalid move. Try again.\n";
         }
@@ -96,29 +113,8 @@ public:
                 }
             }
         }
-        GameStats::incrementPuzzlesSolved();
         return true;
     }
-};
-
-// Player Class: Manages individual player details
-class Player {
-private:
-    string name;
-    int moves;
-
-public:
-    Player(const string& playerName) : name(playerName), moves(0) {
-        GameStats::incrementTotalPlayers();
-    }
-
-    void incrementMoves() {
-        moves++;
-        GameStats::incrementTotalMoves();
-    }
-
-    string getName() const { return name; }
-    int getMoves() const { return moves; }
 };
 
 // Main function
@@ -136,14 +132,10 @@ int main() {
         {0, 0, 0, 0, 0, 0, 0, 0, 0, 5}
     };
 
-    string playerName;
-    cout << "Enter your name: ";
-    getline(cin, playerName);
-
-    Player player(playerName);
-    ClassicSudokuValidator validator;
+    // Use AdvancedSudokuValidator and FancyGridPrinter
+    AdvancedSudokuValidator validator(puzzle);
     SudokuGrid sudoku(puzzle, &validator);
-    SimpleGridPrinter printer;
+    FancyGridPrinter printer;
 
     cout << "Sudoku Grid before solving:" << endl;
     sudoku.printGrid(printer);
@@ -164,7 +156,6 @@ int main() {
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C') {
                 sudoku.placeNumber(row, col, num);
-                player.incrementMoves();
                 sudoku.printGrid(printer);
 
                 if (sudoku.isSolved()) {
@@ -178,11 +169,6 @@ int main() {
             cout << "Invalid format! Use 'R <row> C <col> <num>'.\n";
         }
     }
-
-    cout << "\nPlayer: " << player.getName() << " | Moves: " << player.getMoves() << endl;
-    cout << "Total Moves by All Players: " << GameStats::getTotalMoves() << endl;
-    cout << "Total Players: " << GameStats::getTotalPlayers() << endl;
-    cout << "Total Puzzles Solved: " << GameStats::getPuzzlesSolved() << endl;
 
     return 0;
 }
