@@ -1,110 +1,65 @@
 #include <iostream>
-#include <sstream>
 #include <string>
+#include <sstream>
 using namespace std;
 
-// Base Class representing general game functionality
-class Game {
-protected:
-    int totalMoves; // Track total moves for the game
+// GameStats Class: Manages global game statistics
+class GameStats {
+private:
+    static int totalMoves;
+    static int totalPlayers;
+    static int puzzlesSolved;
 
 public:
-    Game() : totalMoves(0) {}
+    static void incrementTotalMoves() { totalMoves++; }
+    static void incrementTotalPlayers() { totalPlayers++; }
+    static void incrementPuzzlesSolved() { puzzlesSolved++; }
 
-    virtual ~Game() {}
-
-    virtual void printGameType() const = 0; // Pure virtual function for polymorphism
-
-    virtual void printGrid() const = 0; // Pure virtual function for displaying the grid
-
-    virtual bool isSolved() const = 0; // Pure virtual function for checking if solved
-
-    virtual void placeNumber(int row, int col, int num) = 0; // Pure virtual function for placing a number
+    static int getTotalMoves() { return totalMoves; }
+    static int getTotalPlayers() { return totalPlayers; }
+    static int getPuzzlesSolved() { return puzzlesSolved; }
 };
 
-// Class representing a Player
+// Initialize static variables
+int GameStats::totalMoves = 0;
+int GameStats::totalPlayers = 0;
+int GameStats::puzzlesSolved = 0;
+
+// Player Class: Manages individual player details
 class Player {
 private:
-    string* name;
-    int moves; // Individual player's moves
-    static int totalMoves; // Shared among all players
-    static int totalPlayers; // Count of total players
+    string name;
+    int moves;
 
 public:
-    // Constructor
-    Player(const string& playerName) : moves(0) {
-        name = new string(playerName);
-        totalPlayers++;
-    }
-
-    // Destructor
-    ~Player() {
-        delete name;
-    }
-
-    string getName() const {
-        return *name;
-    }
-
-    void setName(const string& playerName) {
-        *name = playerName;
-    }
-
-    int getMoves() const {
-        return moves;
+    Player(const string& playerName) : name(playerName), moves(0) {
+        GameStats::incrementTotalPlayers();
     }
 
     void incrementMoves() {
         moves++;
-        totalMoves++;
+        GameStats::incrementTotalMoves();
     }
 
-    static int getTotalMoves() {
-        return totalMoves;
-    }
-
-    static int getTotalPlayers() {
-        return totalPlayers;
-    }
-
-    void clearName() {
-        delete name;
-        name = nullptr;
-    }
+    string getName() const { return name; }
+    int getMoves() const { return moves; }
 };
 
-int Player::totalMoves = 0;
-int Player::totalPlayers = 0;
-
-// Class representing a Sudoku grid
-class SudokuGrid : public Game {
-protected:
-    int** grid;
-    static int puzzlesSolved; // Shared across all Sudoku grids
-    static int totalGrids;    // Total grids created
+// SudokuGrid Class: Manages the Sudoku grid and game logic
+class SudokuGrid {
+private:
+    int grid[10][10];
 
 public:
-    // Constructor
     SudokuGrid(int initialGrid[10][10]) {
-        grid = new int*[10];
         for (int i = 0; i < 10; i++) {
-            grid[i] = new int[10];
             for (int j = 0; j < 10; j++) {
                 grid[i][j] = initialGrid[i][j];
             }
         }
-        totalGrids++;
     }
 
-    // Destructor
-    ~SudokuGrid() {
-        for (int i = 0; i < 10; i++) {
-            delete[] grid[i];
-        }
-        delete[] grid;
-    }
-
-    void printGrid() const override {
+    void printGrid() const {
         for (int i = 9; i >= 0; i--) {
             for (int j = 0; j < 10; j++) {
                 cout << grid[i][j] << " ";
@@ -113,7 +68,11 @@ public:
         }
     }
 
-    bool isSolved() const override {
+    void placeNumber(int row, int col, int num) {
+        grid[row][col] = num;
+    }
+
+    bool isSolved() const {
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
                 if (grid[i][j] == 0) {
@@ -121,44 +80,12 @@ public:
                 }
             }
         }
-        puzzlesSolved++;
+        GameStats::incrementPuzzlesSolved();
         return true;
     }
-
-    static int getPuzzlesSolved() {
-        return puzzlesSolved;
-    }
-
-    static int getTotalGrids() {
-        return totalGrids;
-    }
-
-    void placeNumber(int row, int col, int num) override {
-        grid[row][col] = num;
-    }
-
-    void printGameType() const override {
-        cout << "Sudoku Game" << endl;
-    }
 };
 
-int SudokuGrid::puzzlesSolved = 0;
-int SudokuGrid::totalGrids = 0;
-
-// Advanced Sudoku Grid class
-class AdvancedSudokuGrid : public SudokuGrid {
-public:
-    AdvancedSudokuGrid(int initialGrid[10][10]) : SudokuGrid(initialGrid) {}
-
-    void provideHint() const {
-        cout << "Hint: Focus on rows with fewer empty cells!" << endl;
-    }
-
-    void printGameType() const override {
-        cout << "Advanced Sudoku Game" << endl;
-    }
-};
-
+// Main function
 int main() {
     int puzzle[10][10] = {
         {1, 0, 0, 4, 0, 6, 0, 0, 0, 2},
@@ -177,12 +104,11 @@ int main() {
     cout << "Enter your name: ";
     getline(cin, playerName);
 
-    Player* player = new Player(playerName);
-
-    AdvancedSudokuGrid* sudoku = new AdvancedSudokuGrid(puzzle);
+    Player player(playerName);
+    SudokuGrid sudoku(puzzle);
 
     cout << "Sudoku Grid before solving:" << endl;
-    sudoku->printGrid();
+    sudoku.printGrid();
 
     string input;
     while (true) {
@@ -199,12 +125,12 @@ int main() {
         istringstream iss(input);
         if (iss >> r >> row >> c >> col >> num) {
             if (r == 'R' && c == 'C' && row >= 0 && row < 10 && col >= 0 && col < 10 && num >= 1 && num <= 10) {
-                sudoku->placeNumber(row, col, num);
+                sudoku.placeNumber(row, col, num);
                 cout << "Placed " << num << " at (" << row << ", " << col << ").\n";
-                sudoku->printGrid();
-                player->incrementMoves();
+                sudoku.printGrid();
+                player.incrementMoves();
 
-                if (sudoku->isSolved()) {
+                if (sudoku.isSolved()) {
                     cout << "Congratulations! You've solved the Sudoku!\n";
                     break;
                 }
@@ -216,20 +142,10 @@ int main() {
         }
     }
 
-    cout << "\nPlayer: " << player->getName() << " | Moves: " << player->getMoves() << endl;
-    cout << "Total Moves by All Players: " << Player::getTotalMoves() << endl;
-    cout << "Total Players: " << Player::getTotalPlayers() << endl;
-    cout << "Total Puzzles Solved: " << SudokuGrid::getPuzzlesSolved() << endl;
-    cout << "Total Sudoku Grids Created: " << SudokuGrid::getTotalGrids() << endl;
-
-    auto* advancedSudoku = dynamic_cast<AdvancedSudokuGrid*>(sudoku);
-    if (advancedSudoku) {
-        advancedSudoku->provideHint();
-    }
-
-    player->clearName();
-    delete sudoku;
-    delete player;
+    cout << "\nPlayer: " << player.getName() << " | Moves: " << player.getMoves() << endl;
+    cout << "Total Moves by All Players: " << GameStats::getTotalMoves() << endl;
+    cout << "Total Players: " << GameStats::getTotalPlayers() << endl;
+    cout << "Total Puzzles Solved: " << GameStats::getPuzzlesSolved() << endl;
 
     return 0;
 }
